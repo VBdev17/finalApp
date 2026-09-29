@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
 
+const apiUrl = (import.meta.env.VITE_API_URL || "http://localhost:3000").replace(/\/+$/, "");
+
+
 function App() {
     const [message, setMessage] = useState("Loading...");
 
     useEffect(() => {
-        fetch(`${import.meta.env.VITE_API_URL}/health`)
+        fetch(`${apiUrl}/health`)
             .then((response) => response.json())
             .then((data) => {
                 setMessage(data.status);
