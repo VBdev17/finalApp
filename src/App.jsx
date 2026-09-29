@@ -1,26 +1,62 @@
-import { useEffect, useState } from "react";
-
-const apiUrl = (import.meta.env.VITE_API_URL || "http://localhost:3000").replace(/\/+$/, "");
-
+import { useState, useEffect } from "react";
+import TodoForm from "./TodoForm";
+import TodoList from "./TodoList";
 
 function App() {
-    const [message, setMessage] = useState("Loading...");
+    const [task, setTask] = useState("");
+
+    const [tasks, setTasks] = useState(
+        JSON.parse(localStorage.getItem("tasks")) || []
+    );
 
     useEffect(() => {
-        fetch(`${apiUrl}/health`)
-            .then((response) => response.json())
-            .then((data) => {
-                setMessage(data.status);
-            })
-            .catch(() => {
-                setMessage("Backend not connected");
-            });
-    }, []);
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+    }, [tasks]);
+
+    const addTask = () => {
+        if (task.trim() === "") {
+            return;
+        }
+
+        const newTask = {
+            id: Date.now(),
+            text: task,
+            completed: false
+        };
+
+        setTasks([...tasks, newTask]);
+        setTask("");
+    };
+
+    const toggleTask = (id) => {
+        setTasks(
+            tasks.map((task) =>
+                task.id === id
+                    ? { ...task, completed: !task.completed }
+                    : task
+            )
+        );
+    };
+
+    const deleteTask = (id) => {
+        setTasks(tasks.filter((task) => task.id !== id));
+    };
 
     return (
         <div>
-            <h1>Full Stack Application</h1>
-            <p>Backend Status: {message}</p>
+            <h1>To-Do List</h1>
+
+            <TodoForm
+                task={task}
+                setTask={setTask}
+                addTask={addTask}
+            />
+
+            <TodoList
+                tasks={tasks}
+                toggleTask={toggleTask}
+                deleteTask={deleteTask}
+            />
         </div>
     );
 }
